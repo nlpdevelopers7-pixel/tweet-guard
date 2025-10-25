@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import axios from 'axios';
 import { FiSend, FiAlertTriangle, FiCheckCircle, FiLoader } from 'react-icons/fi';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5004';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://tweet-guard-435287385741.us-central1.run.app';
 
 const AppContainer = styled.div`
   min-height: 100vh;

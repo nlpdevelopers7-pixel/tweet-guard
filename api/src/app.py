@@ -6,7 +6,7 @@ Flask API for detecting hate speech and offensive language in text
 import pickle
 import logging
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import numpy as np
 
@@ -27,6 +27,7 @@ def load_model():
         # Model is saved in the organized structure
         # Try multiple possible paths
         possible_paths = [
+            'hate_speech_model.pkl',  # Model copied to root of /app
             'models/saved/hate_speech_model.pkl',  # From root directory
             '../models/saved/hate_speech_model.pkl',  # From api directory
             '../../models/saved/hate_speech_model.pkl'  # From api/src directory
@@ -215,10 +216,33 @@ def method_not_allowed(error):
 def internal_error(error):
     return jsonify({"error": "Internal server error"}), 500
 
+# Serve React frontend
+@app.route('/')
+def serve_frontend():
+    """Serve the React frontend"""
+    return send_from_directory('static', 'index.html')
+
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    """Serve static files"""
+    return send_from_directory('static', filename)
+
+@app.route('/manifest.json')
+def serve_manifest():
+    """Serve manifest.json"""
+    return send_from_directory('static', 'manifest.json')
+
+# Catch-all route for React Router (client-side routing)
+@app.route('/<path:path>')
+def serve_react_app(path):
+    """Serve React app for any other routes (client-side routing)"""
+    return send_from_directory('static', 'index.html')
+
 if __name__ == '__main__':
     # Load model on startup
     if load_model():
         logger.info("Starting Hate Speech Detection API...")
-        app.run(host='0.0.0.0', port=5004, debug=True)
+        port = int(os.environ.get("PORT", 8080))
+        app.run(host='0.0.0.0', port=port, debug=False)
     else:
         logger.error("Failed to load model. Exiting...")

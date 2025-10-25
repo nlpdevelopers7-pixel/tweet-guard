@@ -29,43 +29,15 @@ COPY api/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy backend code and model
-COPY api/src/ ./
-COPY models/ ./models/
+COPY api/src/app.py ./
+COPY models/saved/hate_speech_model.pkl ./
 COPY data/ ./data/
 
 # Copy built frontend to serve static files
 COPY --from=0 /app/frontend/build ./static
 
-# Create a simple Flask app to serve both API and frontend
-RUN echo 'from flask import Flask, send_from_directory, request, jsonify\n\
-from flask_cors import CORS\n\
-import os\n\
-import sys\n\
-sys.path.append(".")\n\
-from app import app as api_app\n\
-\n\
-# Create main app\n\
-app = Flask(__name__)\n\
-CORS(app, origins="*")\n\
-\n\
-# Serve React frontend\n\
-@app.route("/")\n\
-def serve_frontend():\n\
-    return send_from_directory("static", "index.html")\n\
-\n\
-@app.route("/static/<path:filename>")\n\
-def serve_static(filename):\n\
-    return send_from_directory("static", filename)\n\
-\n\
-# Mount API routes\n\
-app.register_blueprint(api_app, url_prefix="/api")\n\
-\n\
-if __name__ == "__main__":\n\
-    port = int(os.environ.get("PORT", 8080))\n\
-    app.run(host="0.0.0.0", port=port, debug=False)\n' > main.py
-
 # Expose port
 EXPOSE 8080
 
 # Run the application
-CMD ["python", "main.py"]
+CMD ["python", "app.py"]
