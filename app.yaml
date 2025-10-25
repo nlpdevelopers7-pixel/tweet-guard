@@ -1,0 +1,46 @@
+# App Engine configuration for GCP deployment
+runtime: python39
+service: tweet-guard
+
+# Environment variables
+env_variables:
+  FLASK_ENV: production
+  PORT: 8080
+
+# Automatic scaling
+automatic_scaling:
+  min_instances: 1
+  max_instances: 10
+  target_cpu_utilization: 0.6
+
+# Resources
+resources:
+  cpu: 1
+  memory_gb: 2
+  disk_size_gb: 10
+
+# Health check
+readiness_check:
+  path: "/api/health"
+  check_interval_sec: 5
+  timeout_sec: 4
+  failure_threshold: 2
+  success_threshold: 2
+
+# Handlers for serving React frontend and API
+handlers:
+  # API routes
+  - url: /api/.*
+    script: auto
+    secure: always
+
+  # Static files (React build)
+  - url: /static
+    static_dir: frontend/build/static
+    secure: always
+
+  # Serve React app for all other routes
+  - url: /.*
+    static_files: frontend/build/index.html
+    upload: frontend/build/index.html
+    secure: always

@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  hate-speech-api:
+    build: .
+    ports:
+      - "5004:5004"  # Updated to match API port
+    environment:
+      - FLASK_ENV=production
+      - API_PORT=5004
+    volumes:
+      - ./models/saved/hate_speech_model.pkl:/app/hate_speech_model.pkl:ro
+      - ./data:/app/data:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
