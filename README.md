@@ -430,6 +430,7 @@ This project is developed for educational purposes at BAU University.
 ## 👥 Contributors
 
 - Hassan Tahir - BAU-NLP Lecture 2
+- Abdimajeed Osman Ibrahim - BAU-NLP Lecture 2
 
 ---
 
