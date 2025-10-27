@@ -526,13 +526,22 @@ function App() {
 
     try {
       const response = await axios.post(`${API_BASE_URL}/predict`, { text });
+      console.log('API Response:', response.data); // Debug log
       setResult(response.data);
       
-      // Update stats
+      // Update stats - handle both string and numeric predictions
+      const isFoul = response.data.prediction === 'Foul' || 
+                     response.data.prediction === 1 || 
+                     response.data.prediction === '1';
+      
+      const isProper = response.data.prediction === 'Proper' || 
+                       response.data.prediction === 0 || 
+                       response.data.prediction === '0';
+      
       setStats(prev => ({
         total: prev.total + 1,
-        foul: prev.foul + (response.data.prediction === 'Foul' ? 1 : 0),
-        proper: prev.proper + (response.data.prediction === 'Proper' ? 1 : 0)
+        foul: prev.foul + (isFoul ? 1 : 0),
+        proper: prev.proper + (isProper ? 1 : 0)
       }));
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to analyze text. Please try again.');
@@ -600,22 +609,22 @@ function App() {
             )}
 
             {result && (
-              <ResultSection isFoul={result.prediction === 'Foul'}>
+              <ResultSection isFoul={result.prediction === 'Foul' || result.prediction === 1 || result.prediction === '1'}>
                 <ResultHeader>
-                  {result.prediction === 'Foul' ? (
+                  {(result.prediction === 'Foul' || result.prediction === 1 || result.prediction === '1') ? (
                     <FiAlertTriangle size={20} />
                   ) : (
                     <FiCheckCircle size={20} />
                   )}
-                  <ResultTitle isFoul={result.prediction === 'Foul'}>
-                    {result.prediction === 'Foul' ? 'Foul Language Detected' : 'Content is Proper'}
+                  <ResultTitle isFoul={result.prediction === 'Foul' || result.prediction === 1 || result.prediction === '1'}>
+                    {(result.prediction === 'Foul' || result.prediction === 1 || result.prediction === '1') ? 'Foul Language Detected' : 'Content is Proper'}
                   </ResultTitle>
                 </ResultHeader>
 
                 <ConfidenceBar>
                   <ConfidenceFill 
                     confidence={result.confidence}
-                    isFoul={result.prediction === 'Foul'}
+                    isFoul={result.prediction === 'Foul' || result.prediction === 1 || result.prediction === '1'}
                   />
                 </ConfidenceBar>
 
@@ -626,7 +635,11 @@ function App() {
                 <MetricsGrid>
                   <MetricItem>
                     <strong>Prediction</strong>
-                    <span>{result.prediction}</span>
+                    <span>
+                      {result.prediction === 'Foul' || result.prediction === 1 || result.prediction === '1' 
+                        ? 'Foul' 
+                        : 'Proper'}
+                    </span>
                   </MetricItem>
                   <MetricItem>
                     <strong>Probability</strong>
